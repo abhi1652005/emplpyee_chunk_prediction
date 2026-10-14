@@ -4,12 +4,12 @@ from flask import Flask, request, render_template_string
 
 app = Flask(__name__)
 
-# Load the trained model using the correct filename
+# Load the trained GaussianNB model using your exact filename
 MODEL_FILENAME = 'naivebyes.pkl'
 with open(MODEL_FILENAME, 'rb') as f:
     model = pickle.load(f)
 
-# Embedded HTML & CSS Template with Dropdowns and Text Mapping
+# Embedded HTML & CSS Template
 HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -185,7 +185,7 @@ def home():
     prediction_text = None
     if request.method == 'POST':
         try:
-            # Extract features in the exact training order expected by naivebyes.pkl
+            # Extract features in the exact training order expected by naivebyes.pkl[cite: 1]
             features = [
                 float(request.form['Education']),
                 float(request.form['JoiningYear']),
@@ -199,8 +199,7 @@ def home():
             
             prediction = int(model.predict([features])[0])
             
-            # Map numerical outputs to readable descriptions 
-            # (Adjust 0/1 meaning if your specific dataset label mapping differs)
+            # Map numerical output to user-friendly readable descriptions
             if prediction == 1:
                 prediction_text = "Likely to Leave (Churn Risk)"
             else:
@@ -213,5 +212,3 @@ def home():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-            
-        
