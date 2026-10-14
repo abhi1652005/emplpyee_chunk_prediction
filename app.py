@@ -9,7 +9,7 @@ MODEL_FILENAME = 'naivebyes.pkl'
 with open(MODEL_FILENAME, 'rb') as f:
     model = pickle.load(f)
 
-# Embedded HTML & CSS Template
+# Embedded HTML & CSS Template with New Colors and Animations
 HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -19,16 +19,29 @@ HTML_PAGE = """
     <title>Employee Prediction Portal</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #14b8a6;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
             --text-color: #1e293b;
             --border-color: #cbd5e1;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseResult {
+            0% { transform: scale(0.98); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            background: var(--bg-gradient);
             color: var(--text-color);
             margin: 0;
             padding: 20px;
@@ -37,71 +50,95 @@ HTML_PAGE = """
             align-items: center;
             min-height: 100vh;
         }
+
         .container {
             background: var(--card-bg);
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 35px 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 500px;
+            animation: fadeIn 0.8s ease-out forwards;
         }
+
         h2 {
             margin-top: 0;
             text-align: center;
             color: var(--primary);
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 26px;
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
         }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
+
         label {
             display: block;
             margin-bottom: 6px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
         input, select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 11px 14px;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 8px;
             box-sizing: border-box;
             font-size: 14px;
-            transition: border-color 0.2s;
-            background-color: #fff;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
         }
+
         input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+            transform: translateY(-1px);
         }
+
         button {
             width: 100%;
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             color: white;
-            padding: 12px;
+            padding: 13px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.2s;
+            margin-top: 15px;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
+
         button:hover {
-            background-color: var(--primary-hover);
+            opacity: 0.95;
+            transform: translateY(-2px);
         }
+
+        button:active {
+            transform: translateY(0);
+        }
+
         .result-card {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e0e7ff;
-            border-left: 5px solid var(--primary);
-            border-radius: 4px;
+            margin-top: 25px;
+            padding: 16px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
+            border-left: 6px solid var(--primary);
+            border-radius: 8px;
             text-align: center;
             font-weight: bold;
             font-size: 16px;
-            color: #312e81;
+            color: #1e1b4b;
+            animation: pulseResult 0.5s ease-out;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
     </style>
 </head>
@@ -167,7 +204,7 @@ HTML_PAGE = """
                 <input type="number" id="ExperienceInCurrentDomain" name="ExperienceInCurrentDomain" required placeholder="e.g., 3" min="0" max="20">
             </div>
             
-            <button type="submit">Predict</button>
+            <button type="submit">Predict Risk</button>
         </form>
 
         {% if prediction_text is not none %}
