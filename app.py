@@ -6,10 +6,10 @@ app = Flask(__name__)
 
 # Load the trained model using the correct filename
 MODEL_FILENAME = 'naivebyes.pkl'
-with open(MODEL_FILENAME, 'wb' if False else 'rb') as f:
+with open(MODEL_FILENAME, 'rb') as f:
     model = pickle.load(f)
 
-# Embedded HTML & CSS Template
+# Embedded HTML & CSS Template with Dropdowns and Text Mapping
 HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -69,6 +69,7 @@ HTML_PAGE = """
             box-sizing: border-box;
             font-size: 14px;
             transition: border-color 0.2s;
+            background-color: #fff;
         }
         input:focus, select:focus {
             outline: none;
@@ -109,43 +110,69 @@ HTML_PAGE = """
         <h2>Employee Analysis Portal</h2>
         <form method="POST">
             <div class="form-group">
-                <label for="Education">Education Level (Encoded / Numeric):</label>
-                <input type="number" id="Education" name="Education" required placeholder="e.g., 0 or 1">
+                <label for="Education">Education Level:</label>
+                <select id="Education" name="Education" required>
+                    <option value="0">Bachelors</option>
+                    <option value="1">Masters</option>
+                    <option value="2">PHD</option>
+                </select>
             </div>
+            
             <div class="form-group">
                 <label for="JoiningYear">Joining Year:</label>
-                <input type="number" id="JoiningYear" name="JoiningYear" required placeholder="e.g., 2018">
+                <input type="number" id="JoiningYear" name="JoiningYear" required placeholder="e.g., 2018" min="2012" max="2026">
             </div>
+            
             <div class="form-group">
-                <label for="City">City (Encoded / Numeric):</label>
-                <input type="number" id="City" name="City" required placeholder="e.g., 0, 1, or 2">
+                <label for="City">City:</label>
+                <select id="City" name="City" required>
+                    <option value="0">Bangalore</option>
+                    <option value="1">New Delhi</option>
+                    <option value="2">Pune</option>
+                </select>
             </div>
+            
             <div class="form-group">
                 <label for="PaymentTier">Payment Tier:</label>
-                <input type="number" id="PaymentTier" name="PaymentTier" required placeholder="e.g., 1, 2, or 3">
+                <select id="PaymentTier" name="PaymentTier" required>
+                    <option value="1">Tier 1 (Highest)</option>
+                    <option value="2">Tier 2</option>
+                    <option value="3">Tier 3 (Lowest)</option>
+                </select>
             </div>
+            
             <div class="form-group">
                 <label for="Age">Age:</label>
-                <input type="number" id="Age" name="Age" required placeholder="e.g., 28">
+                <input type="number" id="Age" name="Age" required placeholder="e.g., 28" min="18" max="65">
             </div>
+            
             <div class="form-group">
-                <label for="Gender">Gender (Encoded / Numeric):</label>
-                <input type="number" id="Gender" name="Gender" required placeholder="e.g., 0 or 1">
+                <label for="Gender">Gender:</label>
+                <select id="Gender" name="Gender" required>
+                    <option value="0">Male</option>
+                    <option value="1">Female</option>
+                </select>
             </div>
+            
             <div class="form-group">
-                <label for="EverBenched">Ever Benched (Encoded / Numeric):</label>
-                <input type="number" id="EverBenched" name="EverBenched" required placeholder="e.g., 0 or 1">
+                <label for="EverBenched">Ever Benched:</label>
+                <select id="EverBenched" name="EverBenched" required>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
             </div>
+            
             <div class="form-group">
-                <label for="ExperienceInCurrentDomain">Experience In Current Domain:</label>
-                <input type="number" id="ExperienceInCurrentDomain" name="ExperienceInCurrentDomain" required placeholder="e.g., 3">
+                <label for="ExperienceInCurrentDomain">Experience In Current Domain (Years):</label>
+                <input type="number" id="ExperienceInCurrentDomain" name="ExperienceInCurrentDomain" required placeholder="e.g., 3" min="0" max="20">
             </div>
+            
             <button type="submit">Predict</button>
         </form>
 
-        {% if prediction is not none %}
+        {% if prediction_text is not none %}
         <div class="result-card">
-            Prediction Result: {{ prediction }}
+            Prediction Result: {{ prediction_text }}
         </div>
         {% endif %}
     </div>
@@ -155,7 +182,7 @@ HTML_PAGE = """
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    prediction = None
+    prediction_text = None
     if request.method == 'POST':
         try:
             # Extract features in the exact training order expected by naivebyes.pkl
@@ -171,10 +198,20 @@ def home():
             ]
             
             prediction = int(model.predict([features])[0])
-        except Exception as e:
-            prediction = f"Error in processing input: {str(e)}"
             
-    return render_template_string(HTML_PAGE, prediction=prediction)
+            # Map numerical outputs to readable descriptions 
+            # (Adjust 0/1 meaning if your specific dataset label mapping differs)
+            if prediction == 1:
+                prediction_text = "Likely to Leave (Churn Risk)"
+            else:
+                prediction_text = "Likely to Stay"
+                
+        except Exception as e:
+            prediction_text = f"Error in processing input: {str(e)}"
+            
+    return render_template_string(HTML_PAGE, prediction_text=prediction_text)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+            
+        
